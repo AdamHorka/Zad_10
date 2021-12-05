@@ -201,7 +201,7 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 
 			if(start == 1 && *(data+i)!='$') //prijali sme znak $ a zaciname citat ale $ nezapisujeme
 			{
-				rx_data[i-i] = *(data+i);
+				rx_data[i-1] = *(data+i);
 			}
 
 			if(i>0 && start == 1 && *(data+i)=='$')
