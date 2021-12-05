@@ -55,7 +55,9 @@ uint8_t start = 0;
 uint8_t mode_m[9] = {'m','a','n','u','a','l','\n'};
 uint8_t mode_a[7] = {'a','u','t','o','\n'};
 uint8_t manual[4] = {'P','W','M'};
-uint8_t mode = 100;
+uint8_t value[2] = {};
+uint8_t pwm_int;
+uint8_t mode = 100; // 0 pre manual, 1 pre auto, 2 pre pwm
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -201,12 +203,36 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 
 			if(start == 1 && *(data+i)!='$') //prijali sme znak $ a zaciname citat ale $ nezapisujeme
 			{
-				rx_data[i-i] = *(data+i);
+				rx_data[i-1] = *(data+i);
 			}
 
 			if(i>0 && start == 1 && *(data+i)=='$')
 			{
 				start = 0;
+
+				// Rozlisujeme aky retazec sme prijali
+				if(strcmp(rx_data, "manual") == 0)
+				{
+					mode = 0;
+					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
+				}
+				if(strcmp(rx_data, "auto") == 0)
+				{
+					mode = 1;
+					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
+				}
+				if(mode == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
+				{
+					mode = 2;
+
+					value[0] = rx_data[3];
+					value[1] = rx_data[4];
+
+					pwm_int = atoi(value);
+
+					//memset(rx_data,'\0',10); //zmazeme retazec z arrayu
+				}
+
 			}
 		}
 	}
