@@ -53,7 +53,7 @@ uint8_t rx_data[20];	 			// prijimane data
 uint8_t start = 0;					// zaciatok citania retazca
 uint8_t pwm_array[2] = {'0','0'};	// pomocne pole
 uint8_t pwm_int = 0;				// hodnota PWM
-uint8_t mode = 100; 				// 0 pre manual, 1 pre auto, 2 pre pwm
+uint8_t is_auto = 0; 				// 0 pre manual, 1 pre auto, 2 pre pwm
 
 /* USER CODE END PV */
 
@@ -90,7 +90,7 @@ int main(void)
 
   /* System interrupt init*/
   /* SysTick_IRQn interrupt configuration */
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),15, 0));
+  //NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),15, 0));
 
   /* USER CODE BEGIN Init */
 
@@ -111,6 +111,11 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   USART2_RegisterCallback(receive_dma_data);
+  LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
+  LL_TIM_EnableIT_UPDATE(TIM2);
+  LL_TIM_EnableCounter(TIM2);
+  LL_TIM_EnableIT_UPDATE(TIM3);
+  LL_TIM_EnableCounter(TIM3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -210,35 +215,39 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 				// Rozlisujeme aky retazec sme prijali
 				if(strcmp(rx_data, "manual") == 0)
 				{
-					mode = 0;
+					is_auto = 0;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
 				if(strcmp(rx_data, "auto") == 0)
 				{
-					mode = 1;
+					is_auto = 1;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
 				//tato podmienka je odporna, prerobit
-				if(mode == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
+				if(is_auto == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
 				{
-					mode = 2;
-
 					pwm_array[0] = rx_data[3];
 					pwm_array[1] = rx_data[4];
 
 					pwm_int = atoi(pwm_array); //transformujeme hodnoty arrayu pwm_array na integer pwm pre dalsie pouzitie
 
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
+
+					is_auto = 0;
 				}
 
 			}
 		}
+		for(uint8_t i = 0; i<len; i++)
+		{
+			rx_data[i] = 0;
+		}
 	}
 }
 
-void setDutyCycle(unit8_t duty)
+void setDutyCycle(uint8_t duty)
 {
-	duty_value = duty;
+	uint8_t duty_value = duty;
 	TIM2->CCR1 = duty_value;
 }
 /* USER CODE END 7 */

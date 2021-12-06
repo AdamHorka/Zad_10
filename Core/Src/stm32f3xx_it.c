@@ -43,10 +43,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern int pwm_int;
-extern int mode;
-unit8_t pwm_act = 0;
-unit8_t pwm_state = 0;
+extern uint8_t pwm_int;
+extern uint8_t is_auto;
+uint8_t pwm_act = 0;
+uint8_t pwm_state = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -254,7 +254,7 @@ void TIM3_IRQHandler(void)
   /* USER CODE BEGIN TIM3_IRQn 0 */
 	if (LL_TIM_IsActiveFlag_UPDATE(TIM3))
 	{
-		if(mode == 0)
+		if(is_auto == 0)
 		{
 			if(pwm_act > pwm_int)
 			{
@@ -269,31 +269,32 @@ void TIM3_IRQHandler(void)
 			}
 		}
 
-		if(mode == 1)
+		if(is_auto == 1)
 		{
 			if(pwm_state == 0)
 			{
+				pwm_act++;
+				setDutyCycle(pwm_act);
 				if(pwm_act >= 100)
 				{
 					pwm_state = 1;
 				}
 
-				pwm_act++;
-				setDutyCycle(pwm_act);
 			}
 
 			if(pwm_state == 1)
 			{
+				pwm_act--;
+				setDutyCycle(pwm_act);
 				if(pwm_act <= 0)
 				{
 					pwm_state = 0;
 				}
-
-				pwm_act--;
-				setDutyCycle(pwm_act);
 			}
 		}
+
 	}
+	LL_TIM_ClearFlag_UPDATE(TIM3);
   /* USER CODE END TIM3_IRQn 0 */
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
