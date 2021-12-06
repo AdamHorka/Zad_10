@@ -237,6 +237,12 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 		}
 	}
 }
+
+void setDutyCycle(unit8_t duty)
+{
+	duty_value = duty;
+	TIM2->CCR1 = duty_value;
+}
 /* USER CODE END 4 */
 
 void Error_Handler(void)
