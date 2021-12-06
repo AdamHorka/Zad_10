@@ -223,7 +223,7 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 					mode = 1;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
-				//tato podmienka je odporna, prerobit
+
 				if(mode == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
 				{
 					pwm_array[0] = rx_data[3];
