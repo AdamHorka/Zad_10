@@ -171,22 +171,22 @@ void SystemClock_Config(void)
 
   }
   LL_Init1msTick(8000000);
-  /* USER CODE BEGIN 4 */
+  /* USER CODE BEGIN 5 */
   LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
-  /* USER CODE END 4 */
+  /* USER CODE END 5 */
   LL_SetSystemCoreClock(8000000);
 }
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 6 */
 
-/* USER CODE END 4 */
+/* USER CODE END 6 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 7 */
 void receive_dma_data(const uint8_t* data, uint16_t len)
 {
 	if (start == 0) //znaci ze sme este nenacali citanie znakom $
@@ -235,7 +235,7 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 		}
 	}
 }
-/* USER CODE END 4 */
+/* USER CODE END 7 */
 
 void Error_Handler(void)
 {
