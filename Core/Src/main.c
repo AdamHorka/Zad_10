@@ -47,17 +47,14 @@
 
 /* USER CODE BEGIN PV */
 // Space for your global variables
-uint8_t tx_data[] = "I"; // odosielane data
-uint8_t rx_data[20];	 // prijimane data
-int counter = 0;         // pomocna premenna
 
-uint8_t start = 0;
-uint8_t mode_m[9] = {'m','a','n','u','a','l','\n'};
-uint8_t mode_a[7] = {'a','u','t','o','\n'};
-uint8_t manual[4] = {'P','W','M'};
-uint8_t value[2] = {};
-uint8_t pwm_int;
-uint8_t mode = 100; // 0 pre manual, 1 pre auto, 2 pre pwm
+//uint8_t tx_data[] = "I"; 			// odosielane data
+uint8_t rx_data[20];	 			// prijimane data
+uint8_t start = 0;					// zaciatok citania retazca
+uint8_t pwm_array[2] = {'0','0'};	// pomocne pole
+uint8_t pwm_int = 0;				// hodnota PWM
+uint8_t mode = 100; 				// 0 pre manual, 1 pre auto, 2 pre pwm
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -174,22 +171,22 @@ void SystemClock_Config(void)
 
   }
   LL_Init1msTick(8000000);
-  /* USER CODE BEGIN 4 */
+  /* USER CODE BEGIN 5 */
   LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
-  /* USER CODE END 4 */
+  /* USER CODE END 5 */
   LL_SetSystemCoreClock(8000000);
 }
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 6 */
 
-/* USER CODE END 4 */
+/* USER CODE END 6 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 7 */
 void receive_dma_data(const uint8_t* data, uint16_t len)
 {
 	if (start == 0) //znaci ze sme este nenacali citanie znakom $
@@ -221,16 +218,17 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 					mode = 1;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
+				//tato podmienka je odporna, prerobit
 				if(mode == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
 				{
 					mode = 2;
 
-					value[0] = rx_data[3];
-					value[1] = rx_data[4];
+					pwm_array[0] = rx_data[3];
+					pwm_array[1] = rx_data[4];
 
-					pwm_int = atoi(value);
+					pwm_int = atoi(pwm_array); //transformujeme hodnoty arrayu pwm_array na integer pwm pre dalsie pouzitie
 
-					//memset(rx_data,'\0',10); //zmazeme retazec z arrayu
+					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
 
 			}
@@ -243,7 +241,7 @@ void setDutyCycle(unit8_t duty)
 	duty_value = duty;
 	TIM2->CCR1 = duty_value;
 }
-/* USER CODE END 4 */
+/* USER CODE END 7 */
 
 void Error_Handler(void)
 {
