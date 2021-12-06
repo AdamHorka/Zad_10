@@ -53,7 +53,7 @@ uint8_t rx_data[20];	 			// prijimane data
 uint8_t start = 0;					// zaciatok citania retazca
 uint8_t pwm_array[2] = {'0','0'};	// pomocne pole
 uint8_t pwm_int = 0;				// hodnota PWM
-uint8_t is_auto = 0; 				// 0 pre manual, 1 pre auto, 2 pre pwm
+uint8_t mode = 0; 				// 0 pre manual, 1 pre auto, 2 pre pwm
 
 /* USER CODE END PV */
 
@@ -215,16 +215,16 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 				// Rozlisujeme aky retazec sme prijali
 				if(strcmp(rx_data, "manual") == 0)
 				{
-					is_auto = 0;
+					mode = 0;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
 				if(strcmp(rx_data, "auto") == 0)
 				{
-					is_auto = 1;
+					mode = 1;
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 				}
 				//tato podmienka je odporna, prerobit
-				if(is_auto == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
+				if(mode == 0 && rx_data[0]=='P' && rx_data[1]=='W' && rx_data[2]=='M' &&  (rx_data[3]>= '0' && rx_data[3]<= '9') && (rx_data[4]>= '0' && rx_data[4]<= '9')) //mozeme sa prepnut len ak sme v manual mode
 				{
 					pwm_array[0] = rx_data[3];
 					pwm_array[1] = rx_data[4];
@@ -233,7 +233,7 @@ void receive_dma_data(const uint8_t* data, uint16_t len)
 
 					memset(rx_data,'\0',10); //zmazeme retazec z arrayu
 
-					is_auto = 0;
+					mode = 0;
 				}
 
 			}

@@ -44,7 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 extern uint8_t pwm_int;
-extern uint8_t is_auto;
+extern uint8_t mode;
 uint8_t pwm_act = 0;
 uint8_t pwm_state = 0;
 /* USER CODE END PV */
@@ -254,7 +254,7 @@ void TIM3_IRQHandler(void)
   /* USER CODE BEGIN TIM3_IRQn 0 */
 	if (LL_TIM_IsActiveFlag_UPDATE(TIM3))
 	{
-		if(is_auto == 0)
+		if(mode == 0)
 		{
 			if(pwm_act > pwm_int)
 			{
@@ -269,7 +269,7 @@ void TIM3_IRQHandler(void)
 			}
 		}
 
-		if(is_auto == 1)
+		if(mode == 1)
 		{
 			if(pwm_state == 0)
 			{
